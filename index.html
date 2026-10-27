@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wearable LiDAR Perception</title>
+<meta name="description" content="Ye Yuan, Nihon University: wearable LiDAR perception for people with visual impairments.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a single lab-notebook column; each stage is a band with a spec strip, then figures with numbered captions like a paper. */
+:root {
+  --bg: #f5f6f9;
+  --paper: #ffffff;
+  --ink: #161a24;
+  --muted: #586074;
+  --rule: #d9dde7;
+  --pla: #2440b8;          /* the blue PLA the fixtures are printed in */
+  --pla-soft: #e6eafa;
+  --live: #b5541b;         /* ongoing-work marker */
+  --display: "Archivo", "Arial Narrow", Arial, sans-serif;
+  --body: "Source Sans 3", "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11141b; --paper: #191d27; --ink: #e8eaf1; --muted: #9aa2b5; --rule: #2b3140;
+  --pla: #8ea2ff; --pla-soft: #222a47; --live: #f0955a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11141b; --paper: #191d27; --ink: #e8eaf1; --muted: #9aa2b5; --rule: #2b3140;
+  --pla: #8ea2ff; --pla-soft: #222a47; --live: #f0955a; color-scheme: dark }
+
+* { box-sizing: border-box }
+html { color-scheme: light }
+body { margin: 0 }
+img { max-width: 100% }
+body { background: var(--bg); color: var(--ink); font: 400 1.0625rem/1.6 var(--body); }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 48px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.15 }
+p { margin: 0; max-width: 66ch }
+a { color: var(--pla) }
+a:focus-visible { outline: 2px solid var(--pla); outline-offset: 2px }
+
+header { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.who { font: 600 .8rem/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
+h1 { font-size: clamp(2rem, 4.6vw, 3.2rem); font-weight: 800; letter-spacing: -.01em; margin-block: 12px 18px }
+h1 span { color: var(--pla) }
+.lede { color: var(--muted); font-size: 1.1rem }
+.contact { margin-top: 20px; font: 400 .9rem/1.5 var(--mono); color: var(--muted); user-select: all }
+.hero-img { margin: 0; }
+.hero-img img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; display: block }
+.hero-img figcaption { font: 400 .8rem/1.4 var(--mono); color: var(--muted); margin-top: 8px }
+
+.timeline { margin-top: 56px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 20px; border-top: 2px solid var(--ink) }
+.timeline div:nth-child(5n) { border-right: 0 }
+.timeline div:nth-child(n+6) { border-top: 1px solid var(--rule) }
+.timeline div { padding: 12px 12px 0 0; border-right: 1px solid var(--rule); min-width: 0 }
+.timeline div:last-child { border-right: 0 }
+.timeline time { display: block; font: 600 .78rem/1.3 var(--mono); color: var(--pla) }
+.timeline div.now time { color: var(--live) }
+.timeline span { display: block; font-size: .92rem; line-height: 1.35; margin-top: 4px }
+
+section { margin-top: 72px }
+.stage-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; padding-bottom: 12px; border-bottom: 1px solid var(--rule) }
+.stage-head .tag { font: 600 .75rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 6px 8px; border-radius: 3px; background: var(--pla-soft); color: var(--pla) }
+.stage-head .tag.now { color: var(--live); background: transparent; border: 1px solid var(--live) }
+h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700 }
+.dates { font: 400 .85rem/1 var(--mono); color: var(--muted) }
+.intro { margin-top: 18px }
+
+.specs { margin-top: 24px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule) }
+.specs div { background: var(--paper); padding: 14px 16px; min-width: 0 }
+.specs dt { font: 600 .72rem/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
+.specs dd { margin: 6px 0 0; font: 700 1.3rem/1.2 var(--display); font-variant-numeric: tabular-nums }
+.specs dd small { display: block; font: 400 .82rem/1.35 var(--body); color: var(--muted); margin-top: 4px }
+
+.figs { margin-top: 28px; display: grid; gap: 28px 24px; grid-template-columns: repeat(2, minmax(0, 1fr)) }
+.figs figure { margin: 0; min-width: 0 }
+.figs figure.wide { grid-column: 1 / -1 }
+.figs img, .figs video { width: 100%; display: block; border: 1px solid var(--rule); border-radius: 4px; background: #fff }
+figcaption { margin-top: 8px; font-size: .92rem; color: var(--muted) }
+figcaption b { font: 600 .8rem/1 var(--mono); color: var(--ink); margin-right: 6px }
+
+.steps { margin-top: 24px; display: grid; gap: 0; counter-reset: s }
+.steps li { list-style: none; display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--rule) }
+.steps li::before { counter-increment: s; content: counter(s, decimal-leading-zero); font: 600 .9rem/1.6 var(--mono); color: var(--live) }
+.steps h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px }
+.steps p { color: var(--muted) }
+.steps { padding: 0; margin-bottom: 0 }
+.next { margin-top: 20px; padding: 16px 18px; border-left: 3px solid var(--live); background: var(--paper) }
+.next b { font-family: var(--display) }
+
+footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--rule); font-size: .9rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between }
+
+@media (max-width: 760px) {
+  header { grid-template-columns: minmax(0, 1fr); gap: 24px }
+  .timeline { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .timeline div { border-right: 0; border-bottom: 1px solid var(--rule); padding-bottom: 12px }
+  .specs { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .figs { grid-template-columns: minmax(0, 1fr) }
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="who">Ye Yuan · M.E. student · Nihon University · Kuroiwa Lab</div>
+      <h1>Wearable LiDAR perception for people with <span>visual impairments</span></h1>
+      <p class="lede">I am turning a laptop-based LiDAR SLAM rig into a device a person can wear, one step at a time. Stage 1 made it small and self-contained. Stage 2, in progress, adds an obstacle alert.</p>
+      <div class="contact">cino25026@g.nihon-u.ac.jp</div>
+    </div>
+    <figure class="hero-img">
+      <img src="img/device-angle.jpg" alt="Handheld prototype: blue PLA frame holding a Livox MID-360 LiDAR at the front, a Jetson Orin Nano and a small display at the back">
+      <figcaption>Handheld prototype, October 2026</figcaption>
+    </figure>
+  </header>
+
+  <div class="timeline" aria-label="Project timeline">
+    <div><time>04/2026</time><span>Project starts from the lab's laptop-based LiDAR rig</span></div>
+    <div><time>06/2026</time><span>First Point-LIO recordings with the MID-360</span></div>
+    <div><time>06/26/2026</time><span>Raspberry Pi over Wi-Fi stalls; processing moves to a Jetson</span></div>
+    <div><time>07/14/2026</time><span>Loop tests show a 1.7 m height drift; traced to one sensor</span></div>
+    <div><time>08/03/2026</time><span>Sensor restored with a Livox SDK2 factory reset</span></div>
+    <div><time>09/2026</time><span>Fixtures redesigned in Fusion</span></div>
+    <div><time>10/01/2026</time><span>Final base printed and assembled</span></div>
+    <div><time>10/05/2026</time><span>Three floor-to-floor loop tests</span></div>
+    <div><time>10/15/2026</time><span>Conference paper submitted</span></div>
+    <div class="now"><time>10/20/2026 →</time><span>Obstacle alert software</span></div>
+  </div>
+
+  <section id="stage-1">
+    <div class="stage-head">
+      <span class="tag">Stage 1 · completed</span>
+      <h2>A smaller, self-contained device</h2>
+      <span class="dates">04/2026 – 10/2026</span>
+    </div>
+    <p class="intro">The earlier rig ran SLAM on a laptop. I first tried a Raspberry Pi that streamed data over Wi-Fi, but the link was not reliable, so I moved all processing onto an on-board Jetson Orin Nano. I designed the fixtures in Autodesk Fusion, printed them in PLA, and ran Point-LIO on ROS 1 with the Livox MID-360 and its built-in IMU.</p>
+
+    <dl class="specs">
+      <div><dt>Mass, with display</dt><dd>3,658 → 1,314 g<small>−64.1%</small></dd></div>
+      <div><dt>Mass, no display</dt><dd>882 g<small>−75.9%</small></dd></div>
+      <div><dt>Loop tests</dt><dd>3 × ~180 m<small>4F → 5F → 4F, by stairs</small></dd></div>
+      <div><dt>Return to start</dt><dd>1.18–1.69 cm<small>under 0.01% of path length</small></dd></div>
+    </dl>
+
+    <div class="figs">
+      <figure>
+        <video src="video/fusion.mp4" poster="img/fusion.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Rotating view of the fixture assembly in Autodesk Fusion"></video>
+        <figcaption><b>Fig. 1</b>Fixture assembly modeled in Autodesk Fusion.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/slicer.jpg" alt="3D printing slicer preview of one part" loading="lazy">
+        <figcaption><b>Fig. 2</b>Slicer preview before printing one part in PLA.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/parts.jpg" alt="Printed parts laid out next to a steel ruler" loading="lazy">
+        <figcaption><b>Fig. 3</b>Printed parts before assembly, with a ruler for scale (mm).</figcaption>
+      </figure>
+      <figure>
+        <img src="img/device-side.jpg" alt="Side view of the assembled device" loading="lazy">
+        <figcaption><b>Fig. 4</b>Assembled device: LiDAR at the front, Jetson and display at the back.</figcaption>
+      </figure>
+      <figure class="wide">
+        <video src="video/slam_live.mp4" poster="img/slam-poster.jpg" autoplay muted loop playsinline preload="metadata" controls aria-label="Screen recording: camera view on the left, point-cloud map growing on the right as the operator walks corridors and stairs"></video>
+        <figcaption><b>Video 1</b>Screen recording from a corridor and stairs test on 07/31/2026, sped up 14×. Left: camera view. Right: the map Point-LIO builds while walking.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/route.jpg" alt="Test route sketch: from the 4th floor lab, up the stairs to the 5th floor, along the corridor, and back down to the 4th floor" loading="lazy">
+        <figcaption><b>Fig. 5</b>Test route: start at the 4th-floor lab (star), climb to the 5th floor, walk the corridor, and come back down to the same start mark.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/trajectory.jpg" alt="3D trajectory estimated by Point-LIO, showing the change in height between floors" loading="lazy">
+        <figcaption><b>Fig. 6</b>Trajectory estimated by Point-LIO in trial 3 (m). The step in z is the stair climb.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/map-paper.jpg" alt="Point-cloud map from the same trial, showing the corridors on both floors and the stairwells" loading="lazy">
+        <figcaption><b>Fig. 7</b>Point-cloud map from the same trial. The corridors on both floors and the stairs between them are visible.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/height.jpg" alt="Estimated height against cumulative distance for trials 1 to 3; all three rise about 4 m at the stairs and return to zero" loading="lazy">
+        <figcaption><b>Fig. 8</b>Estimated height over distance in all three trials. Each run climbs one floor and comes back to the start height.</figcaption>
+      </figure>
+    </div>
+    <p class="intro">The return-to-start figure compares the mean position over the first and last five seconds of each run. It includes the error of placing the device back on the start mark, so it is a loop-closure check, not absolute accuracy. The results are in a paper submitted to the annual research conference of the College of Industrial Technology, Nihon University (October 2026, in Japanese). In July, before these tests, I traced a repeatable 1.7 m vertical drift to one sensor by swapping in a second MID-360, and restored that unit with a Livox SDK2 factory reset.</p>
+  </section>
+
+  <section id="stage-2">
+    <div class="stage-head">
+      <span class="tag now">Stage 2 · in progress</span>
+      <h2>An obstacle alert for a chest-worn device</h2>
+      <span class="dates">10/2026 – now</span>
+    </div>
+    <p class="intro">The goal is a device worn on the chest that warns the user when something gets close. The motor is not connected yet; so far the work is on the point-cloud side.</p>
+    <ol class="steps">
+      <li><div><h3>Check what a chest mount can see</h3><p>The MID-360 sees about 7° down and 52° up. Worn upright on the chest, low obstacles near the feet can fall outside its view, so the mount angle matters.</p></div></li>
+      <li><div><h3>Read the raw point cloud on the Jetson</h3><p>A ROS 1 node takes about 20,000 points per frame at 10 Hz straight from the LiDAR driver. On the first real test the nearest obstacle was always 0 m: 40.79% of the points were zero coordinates.</p></div></li>
+      <li><div><h3>Ignore the device's own parts</h3><p>The mount and cables sit right next to the sensor and kept the alert on. Points within 50 cm that stay still for 10 seconds are ignored. Anything new or moving still triggers the alert. A neighbor check removes isolated returns.</p></div></li>
+      <li><div><h3>Turn distance into alert strength</h3><p>The nearest remaining distance maps to a strength from 0 to 100%: 0% beyond 2 m, 50% at 1 m, 100% within 0.5 m. A small window shows the value live.</p></div></li>
+    </ol>
+    <div class="next"><b>Next:</b> connect a vibration motor, test with boxes at measured distances, then try it on the body with someone walking alongside.</div>
+  </section>
+
+  <footer>
+    <span>Ye Yuan · Nihon University, Chiba, Japan · Advisor: Prof. Takashi Kuroiwa</span>
+    <span>Updated October 2026</span>
+  </footer>
+</div>
+
+</body>
+</html>
